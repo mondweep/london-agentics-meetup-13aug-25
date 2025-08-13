@@ -10,6 +10,7 @@ const morgan_1 = __importDefault(require("morgan"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const tripRoutes_1 = __importDefault(require("./routes/tripRoutes"));
 const demoRoutes_1 = __importDefault(require("./routes/demoRoutes"));
+const statusRoutes_1 = __importDefault(require("./routes/statusRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
@@ -33,8 +34,9 @@ app.get('/health', (req, res) => {
     res.json(response);
 });
 app.use('/api/trips', tripRoutes_1.default);
+app.use('/api/status', statusRoutes_1.default);
 app.use('/api/demo', demoRoutes_1.default);
-app.get('/api', (req, res) => {
+app.get('/api-docs', (req, res) => {
     const response = {
         success: true,
         data: {
@@ -53,6 +55,39 @@ app.get('/api', (req, res) => {
                     monitor: 'POST /api/trips/{id}/monitor',
                     alerts: 'GET /api/trips/{id}/alerts'
                 },
+                users: {
+                    list: 'GET /api/users',
+                    get: 'GET /api/users/{id}',
+                    create: 'POST /api/users',
+                    update: 'PUT /api/users/{id}',
+                    delete: 'DELETE /api/users/{id}',
+                    settings: 'GET /api/users/{id}/settings',
+                    updateSettings: 'PUT /api/users/{id}/settings'
+                },
+                monitoring: {
+                    start: 'POST /api/monitoring/start',
+                    stop: 'POST /api/monitoring/stop',
+                    status: 'GET /api/monitoring/status',
+                    jobs: 'GET /api/monitoring/jobs',
+                    simulate: 'POST /api/monitoring/simulate',
+                    alerts: 'GET /api/monitoring/alerts'
+                },
+                notifications: {
+                    send: 'POST /api/notifications/send',
+                    alert: 'POST /api/notifications/alert',
+                    history: 'GET /api/notifications/{userId}',
+                    markRead: 'POST /api/notifications/{userId}/mark-read',
+                    unread: 'GET /api/notifications/{userId}/unread',
+                    clear: 'DELETE /api/notifications/{userId}',
+                    test: 'POST /api/notifications/test'
+                },
+                status: {
+                    overview: 'GET /api/status',
+                    health: 'GET /api/status/health',
+                    monitoring: 'GET /api/status/monitoring',
+                    database: 'GET /api/status/database',
+                    endpoints: 'GET /api/status/api-endpoints'
+                },
                 demo: {
                     locations: 'GET /api/demo/locations',
                     setup: 'POST /api/demo/setup',
@@ -68,7 +103,7 @@ app.get('/api', (req, res) => {
     };
     res.json(response);
 });
-app.use('*', (req, res) => {
+app.use((req, res) => {
     const response = {
         success: false,
         error: 'Endpoint not found',
@@ -96,7 +131,7 @@ process.on('SIGINT', () => {
 app.listen(PORT, () => {
     console.log('🚗 Pre-Route Traffic Monitoring API');
     console.log(`📡 Server running on port ${PORT}`);
-    console.log(`🌐 API documentation: http://localhost:${PORT}/api`);
+    console.log(`🌐 API documentation: http://localhost:${PORT}/api-docs`);
     console.log(`❤️  Health check: http://localhost:${PORT}/health`);
     console.log('🇬🇧 Monitoring Kent traffic for proactive route intelligence');
     if (process.env.NODE_ENV === 'development') {

@@ -1,0 +1,670 @@
+/* Pre-Route Dark Theme Styles */
+:root {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-card: #333333;
+  --bg-hover: #404040;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #888888;
+  --accent-primary: #007bff;
+  --accent-hover: #0056b3;
+  --status-clear: #28a745;
+  --status-moderate: #ffc107;
+  --status-heavy: #dc3545;
+  --border-light: #444444;
+  --border-dark: #222222;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background-color: var(--bg-secondary);
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.demo-mode {
+  background-color: var(--status-moderate);
+  color: #000;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Dashboard Styles */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.dashboard-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.trips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Trip Card Styles */
+.trip-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.trip-card:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--accent-primary);
+}
+
+.trip-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.trip-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.trip-route {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.status-indicator {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  margin-top: 0.25rem;
+}
+
+.status-clear {
+  background-color: var(--status-clear);
+}
+
+.status-moderate {
+  background-color: var(--status-moderate);
+}
+
+.status-heavy {
+  background-color: var(--status-heavy);
+}
+
+.trip-schedule {
+  margin-bottom: 1rem;
+}
+
+.schedule-days {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.schedule-time {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.trip-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.current-time {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.delay-info {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.delay-warning {
+  color: var(--status-moderate);
+}
+
+.delay-critical {
+  color: var(--status-heavy);
+}
+
+/* Button Styles */
+.btn {
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn:hover {
+  background-color: var(--accent-hover);
+}
+
+.btn-secondary {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-hover);
+}
+
+/* Form Styles */
+.form {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 0.5rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.checkbox-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.checkbox-item input[type="checkbox"] {
+  margin: 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Notification Banner Styles */
+.notification-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: var(--status-moderate);
+  color: #000;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: slideDown 0.3s ease;
+}
+
+.notification-banner.error {
+  background-color: var(--status-heavy);
+  color: white;
+}
+
+.notification-banner.success {
+  background-color: var(--status-clear);
+  color: white;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.notification-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.notification-message {
+  font-size: 0.9rem;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+/* Map Placeholder Styles */
+.map-placeholder {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 0.5rem;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  margin: 1rem 0;
+}
+
+/* Route List Styles */
+.routes-list {
+  margin: 1rem 0;
+}
+
+.route-item {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.route-info {
+  flex: 1;
+}
+
+.route-name {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.route-details {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.route-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.route-status.clear {
+  background-color: var(--status-clear);
+  color: white;
+}
+
+.route-status.moderate {
+  background-color: var(--status-moderate);
+  color: #000;
+}
+
+.route-status.heavy {
+  background-color: var(--status-heavy);
+  color: white;
+}
+
+/* Loading States */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  color: var(--text-muted);
+}
+
+/* Additional Component Styles */
+.dashboard-stats {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.dashboard-stats span {
+  margin-right: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background-color: var(--bg-card);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-light);
+}
+
+.empty-state h3 {
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.empty-state p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.monitoring-status, .inactive-status {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+.monitoring-status {
+  background-color: var(--status-clear);
+  color: white;
+}
+
+.inactive-status {
+  background-color: var(--text-muted);
+  color: white;
+}
+
+.last-update {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-dark);
+}
+
+.dashboard-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.persona-selector {
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+}
+
+.error-message {
+  color: var(--status-heavy);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.form-help {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+/* Trip Detail Styles */
+.trip-detail {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.trip-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.trip-detail-content h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.trip-route-info {
+  background-color: var(--bg-card);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.route-text {
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.trip-schedule-info {
+  background-color: var(--bg-card);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.trip-schedule-info h3 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.trip-schedule-info p {
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.map-section, .routes-section {
+  margin-bottom: 2rem;
+}
+
+.map-section h3, .routes-section h3 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.route-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.route-header h4 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.delay-text {
+  color: var(--status-moderate);
+}
+
+.route-reason {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.no-routes {
+  background-color: var(--bg-card);
+  padding: 2rem;
+  text-align: center;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-light);
+}
+
+.no-routes p {
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.last-update-info {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.notification-icon {
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+}
+
+.notification-timestamp {
+  font-size: 0.7rem;
+  color: inherit;
+  opacity: 0.8;
+  margin-top: 0.25rem;
+}
+
+.user-info {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .trips-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .notification-banner {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .trip-detail-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .dashboard-actions {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .persona-selector {
+    justify-content: center;
+  }
+}

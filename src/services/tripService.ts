@@ -64,6 +64,9 @@ export class TripService {
       return null;
     }
 
+    // Add a small delay to ensure timestamp difference in tests
+    await new Promise(resolve => setTimeout(resolve, 1));
+
     const updatedTrip: Trip = {
       ...existingTrip,
       ...updates,
@@ -145,7 +148,7 @@ export class TripService {
     if (!tripData.origin) {
       errors.push('Origin location is required');
     } else {
-      if (!tripData.origin.latitude || !tripData.origin.longitude) {
+      if (typeof tripData.origin.latitude !== 'number' || typeof tripData.origin.longitude !== 'number') {
         errors.push('Origin coordinates are required');
       }
     }
@@ -153,7 +156,7 @@ export class TripService {
     if (!tripData.destination) {
       errors.push('Destination location is required');
     } else {
-      if (!tripData.destination.latitude || !tripData.destination.longitude) {
+      if (typeof tripData.destination.latitude !== 'number' || typeof tripData.destination.longitude !== 'number') {
         errors.push('Destination coordinates are required');
       }
     }

@@ -20,7 +20,8 @@ export class MockGoogleMapsAPI {
     const baseTime = Math.max(300, distance / 1000 * 120); // ~2 minutes per km minimum
     
     const routes: Route[] = [];
-    const routeCount = Math.min(4, Math.floor(Math.random() * 3) + 2);
+    // Use consistent route count based on distance to avoid test flakiness
+    const routeCount = distance > 20000 ? 4 : distance > 10000 ? 3 : 2;
     
     for (let i = 0; i < routeCount; i++) {
       const routeName = this.selectRouteName(i);
@@ -130,18 +131,22 @@ export class MockTomTomTrafficAPI {
     return incidents;
   }
 
-  // Simulate dynamic traffic conditions
+  // Simulate dynamic traffic conditions with Kent-specific patterns
   private initializeTrafficConditions(): void {
-    const scenarios = [
-      { route: 'A21 (London Road)', severity: 0.8, reason: 'Accident near Junction 5' },
-      { route: 'A25 (High Street)', severity: 0.3, reason: 'Roadworks' },
-      { route: 'Via Seal Hollow Road', severity: 0.1, reason: 'Heavy traffic' },
-      { route: 'M25 Junction 5', severity: 0.6, reason: 'Vehicle breakdown' }
-    ];
-
-    // Apply some random scenarios for demo
-    scenarios.forEach(scenario => {
-      if (Math.random() < 0.4) { // 40% chance of each scenario being active
+    const timeBasedScenarios = this.getTimeBasedTrafficScenarios();
+    const randomScenarios = this.getRandomTrafficScenarios();
+    
+    // Apply time-based scenarios (rush hour, school times, etc.)
+    timeBasedScenarios.forEach(scenario => {
+      this.trafficConditions.set(scenario.route, {
+        severity: scenario.severity,
+        reason: scenario.reason
+      });
+    });
+    
+    // Apply some random scenarios for variety
+    randomScenarios.forEach(scenario => {
+      if (Math.random() < 0.3) { // 30% chance of each scenario being active
         this.trafficConditions.set(scenario.route, {
           severity: scenario.severity,
           reason: scenario.reason
@@ -150,38 +155,171 @@ export class MockTomTomTrafficAPI {
     });
   }
 
+  // Get time-based traffic scenarios for Kent
+  private getTimeBasedTrafficScenarios() {
+    const now = new Date();
+    const hour = now.getHours();
+    const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const scenarios = [];
+
+    // Rush hour patterns (7-9 AM, 5-7 PM on weekdays)
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+      if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19)) {
+        scenarios.push(
+          { route: 'A21 (London Road)', severity: 0.4, reason: 'Rush hour congestion' },
+          { route: 'M25 Junction 5', severity: 0.6, reason: 'Heavy commuter traffic' },
+          { route: 'A225 (Dartford Road)', severity: 0.3, reason: 'Morning/evening rush' },
+          { route: 'A26 (Tonbridge Road)', severity: 0.2, reason: 'Increased traffic volume' }
+        );
+      }
+    }
+
+    // School run times (8:15-8:45 AM, 3:00-3:30 PM on weekdays)
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+      if ((hour === 8) || (hour === 15)) {
+        scenarios.push(
+          { route: 'Via Bradbourne Park Road', severity: 0.3, reason: 'School drop-off/pick-up' },
+          { route: 'A25 (High Street)', severity: 0.2, reason: 'School traffic' },
+          { route: 'Seal Hollow Road', severity: 0.4, reason: 'Parents dropping children at school' }
+        );
+      }
+    }
+
+    // Weekend leisure traffic patterns
+    if (dayOfWeek === 6 || dayOfWeek === 0) {
+      if (hour >= 10 && hour <= 16) {
+        scenarios.push(
+          { route: 'A21 towards Hastings', severity: 0.2, reason: 'Weekend leisure traffic' },
+          { route: 'Via Knole Park', severity: 0.1, reason: 'Visitors to Knole House' }
+        );
+      }
+    }
+
+    return scenarios;
+  }
+
+  // Get random traffic scenarios typical for Kent
+  private getRandomTrafficScenarios() {
+    return [
+      { route: 'A21 (London Road)', severity: 0.7, reason: 'Multi-vehicle accident near Sevenoaks bypass' },
+      { route: 'M25 Junction 5', severity: 0.8, reason: 'Overturned lorry blocking two lanes' },
+      { route: 'A25 (High Street)', severity: 0.4, reason: 'Roadworks - temporary traffic lights' },
+      { route: 'A225 (Dartford Road)', severity: 0.5, reason: 'Broken down vehicle in outside lane' },
+      { route: 'Via Seal Hollow Road', severity: 0.3, reason: 'Tree fallen across carriageway' },
+      { route: 'A26 (Tonbridge Road)', severity: 0.6, reason: 'Police incident - lane restrictions' },
+      { route: 'Via Bradbourne Park Road', severity: 0.2, reason: 'Utility work causing delays' },
+      { route: 'A224 (Polhill)', severity: 0.4, reason: 'Emergency services on scene' },
+      { route: 'Via Riverhead', severity: 0.1, reason: 'Local event causing minor delays' },
+      { route: 'A21 towards Hastings', severity: 0.5, reason: 'Contraflow system in operation' }
+    ];
+  }
+
   private updateTrafficConditions(): void {
-    // Randomly update traffic conditions to simulate real-time changes
+    // Simulate realistic traffic condition changes
     const routes = Array.from(this.trafficConditions.keys());
     
     routes.forEach(route => {
-      if (Math.random() < 0.2) { // 20% chance of condition change
-        const currentCondition = this.trafficConditions.get(route)!;
-        const newSeverity = Math.max(0, currentCondition.severity + (Math.random() - 0.5) * 0.3);
-        
-        this.trafficConditions.set(route, {
-          ...currentCondition,
-          severity: newSeverity
-        });
+      const currentCondition = this.trafficConditions.get(route)!;
+      
+      // Incidents tend to clear over time
+      if (currentCondition.severity > 0.1) {
+        if (Math.random() < 0.15) { // 15% chance of improvement
+          const newSeverity = Math.max(0, currentCondition.severity - Math.random() * 0.2);
+          this.trafficConditions.set(route, {
+            ...currentCondition,
+            severity: newSeverity,
+            reason: newSeverity > 0.1 ? this.updateIncidentReason(currentCondition.reason, 'improving') : undefined
+          });
+        }
+      }
+      
+      // Some incidents can worsen
+      if (currentCondition.severity > 0 && currentCondition.severity < 0.8) {
+        if (Math.random() < 0.08) { // 8% chance of worsening
+          const newSeverity = Math.min(1.0, currentCondition.severity + Math.random() * 0.3);
+          this.trafficConditions.set(route, {
+            ...currentCondition,
+            severity: newSeverity,
+            reason: this.updateIncidentReason(currentCondition.reason, 'worsening')
+          });
+        }
       }
     });
 
-    // Occasionally add new incidents
-    if (Math.random() < 0.1) {
-      const newIncidents = [
-        'Temporary traffic lights',
-        'Lane closure',
-        'Emergency services on scene',
-        'School zone congestion'
-      ];
-      
-      const randomRoute = KENT_ROUTES.PRIMARY_ROADS[Math.floor(Math.random() * KENT_ROUTES.PRIMARY_ROADS.length)];
-      const randomReason = newIncidents[Math.floor(Math.random() * newIncidents.length)];
-      
-      this.trafficConditions.set(randomRoute, {
-        severity: Math.random() * 0.5 + 0.2,
-        reason: randomReason
-      });
+    // Add new realistic incidents
+    if (Math.random() < 0.08) { // 8% chance of new incident
+      this.addNewIncident();
+    }
+
+    // Clear resolved incidents
+    for (const [route, condition] of this.trafficConditions.entries()) {
+      if (condition.severity < 0.05) {
+        this.trafficConditions.delete(route);
+      }
+    }
+  }
+
+  private addNewIncident(): void {
+    const kentIncidents = [
+      {
+        routes: ['A21 (London Road)', 'M25 Junction 5', 'A225 (Dartford Road)'],
+        reasons: [
+          'Vehicle breakdown in outside lane',
+          'Minor collision - debris on road',
+          'Police stopping vehicle',
+          'Broken down HGV causing delays'
+        ],
+        severityRange: [0.2, 0.6]
+      },
+      {
+        routes: ['A25 (High Street)', 'Via Bradbourne Park Road', 'Seal Hollow Road'],
+        reasons: [
+          'Temporary traffic lights installed',
+          'Emergency gas leak - road partially closed',
+          'Water main repair causing delays',
+          'Local event - increased pedestrian activity'
+        ],
+        severityRange: [0.1, 0.4]
+      },
+      {
+        routes: ['A26 (Tonbridge Road)', 'A224 (Polhill)', 'Via Riverhead'],
+        reasons: [
+          'Fallen tree blocking carriageway',
+          'Surface water flooding',
+          'Emergency services attending incident',
+          'Abnormal load requiring escort'
+        ],
+        severityRange: [0.3, 0.8]
+      }
+    ];
+
+    const incidentType = kentIncidents[Math.floor(Math.random() * kentIncidents.length)];
+    const route = incidentType.routes[Math.floor(Math.random() * incidentType.routes.length)];
+    const reason = incidentType.reasons[Math.floor(Math.random() * incidentType.reasons.length)];
+    const severity = incidentType.severityRange[0] + 
+                    Math.random() * (incidentType.severityRange[1] - incidentType.severityRange[0]);
+
+    this.trafficConditions.set(route, {
+      severity,
+      reason
+    });
+
+    console.log(`🚨 New traffic incident: ${route} - ${reason} (Severity: ${Math.round(severity * 100)}%)`);
+  }
+
+  private updateIncidentReason(currentReason: string | undefined, trend: 'improving' | 'worsening'): string {
+    if (!currentReason) return 'Traffic incident';
+    
+    if (trend === 'improving') {
+      if (currentReason.includes('accident')) return currentReason + ' - vehicles being moved';
+      if (currentReason.includes('breakdown')) return currentReason + ' - recovery vehicle on route';
+      if (currentReason.includes('roadworks')) return currentReason + ' - work progressing';
+      return currentReason + ' - situation improving';
+    } else {
+      if (currentReason.includes('accident')) return currentReason + ' - causing further delays';
+      if (currentReason.includes('breakdown')) return currentReason + ' - affecting multiple lanes';
+      if (currentReason.includes('roadworks')) return currentReason + ' - extended closure';
+      return currentReason + ' - delays increasing';
     }
   }
 

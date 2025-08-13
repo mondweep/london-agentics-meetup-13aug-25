@@ -210,6 +210,10 @@ export class NotificationService {
     const startTime = user.settings.quietHours.start;
     const endTime = user.settings.quietHours.end;
 
+    if (!startTime || !endTime) {
+      return false;
+    }
+
     // Handle quiet hours spanning midnight
     if (startTime > endTime) {
       return currentTime >= startTime || currentTime <= endTime;
@@ -249,7 +253,99 @@ export class NotificationService {
     const cooldownMs = this.alertCooldownMinutes * 60 * 1000;
 
     this.recentAlerts = this.recentAlerts.filter(entry => 
-      (now.getTime() - entry.timestamp.getTime()) < cooldownMs
+      (now.getTime() - entry.timestamp.getTime()) < cooldownMs * 2 // Keep longer for tracking
     );
+  }
+
+  // Additional methods for API routes
+  
+  /**
+   * Send a notification with custom data (for API)
+   */
+  async sendNotificationDirect(userId: string, notification: {
+    type: string;
+    title: string;
+    message: string;
+    data: any;
+  }): Promise<boolean> {
+    try {
+      console.log(`📤 Sending notification to user ${userId}:`);
+      console.log(`   Type: ${notification.type}`);
+      console.log(`   Title: ${notification.title}`);
+      console.log(`   Message: ${notification.message}`);
+      
+      // Store the notification (mock implementation)
+      // In a real system, this would integrate with push notification services
+      return true;
+    } catch (error) {
+      console.error('Failed to send notification:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Send traffic alert notification (for API)
+   */
+  async sendTrafficAlert(
+    userId: string,
+    tripId: string,
+    routeName: string,
+    delayMinutes: number,
+    reason: string,
+    alternativeRoutes: any[] = []
+  ): Promise<boolean> {
+    try {
+      console.log(`🚨 Sending traffic alert to user ${userId}:`);
+      console.log(`   Trip ID: ${tripId}`);
+      console.log(`   Route: ${routeName}`);
+      console.log(`   Delay: ${delayMinutes} minutes`);
+      console.log(`   Reason: ${reason}`);
+      
+      return true;
+    } catch (error) {
+      console.error('Failed to send traffic alert:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get notification history for user (mock implementation)
+   */
+  async getNotificationHistory(userId: string, limit?: number, type?: string): Promise<any[]> {
+    // In a real system, this would query a database
+    console.log(`📋 Fetching notification history for user ${userId}`);
+    return []; // Mock empty history
+  }
+
+  /**
+   * Mark notifications as read (mock implementation)
+   */
+  async markNotificationsAsRead(userId: string, notificationIds: string[]): Promise<boolean> {
+    console.log(`✅ Marking ${notificationIds.length} notifications as read for user ${userId}`);
+    return true;
+  }
+
+  /**
+   * Get unread notification count (mock implementation)
+   */
+  async getUnreadCount(userId: string): Promise<number> {
+    console.log(`🔢 Getting unread count for user ${userId}`);
+    return 0; // Mock no unread notifications
+  }
+
+  /**
+   * Clear notification history (mock implementation)
+   */
+  async clearNotificationHistory(userId: string, olderThanDays?: number): Promise<boolean> {
+    console.log(`🗑️  Clearing notification history for user ${userId} ${olderThanDays ? `(older than ${olderThanDays} days)` : ''}`);
+    return true;
+  }
+
+  /**
+   * Test notification system (mock implementation)
+   */
+  async testNotification(userId: string, channel?: string): Promise<boolean> {
+    console.log(`🧪 Sending test notification to user ${userId} via ${channel || 'all channels'}`);
+    return true;
   }
 }

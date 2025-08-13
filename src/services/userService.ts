@@ -140,6 +140,48 @@ export class UserService {
   }
 
   /**
+   * Updates user with arbitrary fields (for API compatibility)
+   */
+  async updateUser(userId: string, updates: Partial<User>): Promise<User | null> {
+    const user = this.users.get(userId);
+    if (!user) return null;
+
+    // Handle name updates
+    if (updates.name !== undefined) {
+      this.validateName(updates.name, true);
+      user.name = updates.name;
+    }
+
+    // Handle email updates
+    if (updates.email !== undefined) {
+      const normalizedEmail = updates.email.toLowerCase().trim();
+      this.validateEmail(normalizedEmail, true);
+      
+      // Check for existing email
+      if (this.emailIndex.has(normalizedEmail) && this.emailIndex.get(normalizedEmail) !== userId) {
+        throw new Error('User with this email already exists');
+      }
+      
+      // Update email index
+      this.emailIndex.delete(user.email);
+      this.emailIndex.set(normalizedEmail, userId);
+      
+      user.email = normalizedEmail;
+    }
+
+    // Handle settings updates
+    if (updates.settings !== undefined) {
+      this.validateSettings(updates.settings);
+      user.settings = {
+        ...user.settings,
+        ...updates.settings
+      };
+    }
+
+    return user;
+  }
+
+  /**
    * Soft deletes a user
    */
   async deleteUser(userId: string): Promise<boolean> {
@@ -258,8 +300,17 @@ export class UserService {
       return false;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isValid = emailRegex.test(email.trim());
+    // More strict email validation
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    const trimmedEmail = email.trim();
+    
+    // Additional checks for common invalid patterns
+    if (trimmedEmail.includes('..') || trimmedEmail.startsWith('.') || trimmedEmail.endsWith('.')) {
+      if (throwError) throw new Error('Invalid email format');
+      return false;
+    }
+    
+    const isValid = emailRegex.test(trimmedEmail);
 
     if (!isValid && throwError) {
       throw new Error('Invalid email format');
@@ -271,7 +322,8 @@ export class UserService {
   validateTimeFormat(time: string): boolean {
     if (!time || typeof time !== 'string') return false;
     
-    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    // Strict time validation: exactly HH:MM format (24-hour)
+    const timeRegex = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
     return timeRegex.test(time);
   }
 

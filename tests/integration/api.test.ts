@@ -84,7 +84,7 @@ describe('API Integration Tests', () => {
         windowEnd: '08:15'
       },
       alertThreshold: {
-        type: 'MINUTES',
+        type: 'MINUTES' as const,
         value: 10
       }
     };
@@ -712,7 +712,7 @@ describe('API Integration Tests', () => {
       const responses = await Promise.all(requests);
       
       // Some requests should be rate limited (depending on implementation)
-      const rateLimited = responses.filter(r => r.status === 429);
+      const rateLimited = responses.filter((r: any) => r.status === 429);
       expect(rateLimited.length).toBeGreaterThanOrEqual(0); // May or may not be rate limited
     });
   });

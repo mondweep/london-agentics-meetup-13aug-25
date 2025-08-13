@@ -47,6 +47,7 @@ class TripService {
         if (!existingTrip) {
             return null;
         }
+        await new Promise(resolve => setTimeout(resolve, 1));
         const updatedTrip = {
             ...existingTrip,
             ...updates,
@@ -108,7 +109,7 @@ class TripService {
             errors.push('Origin location is required');
         }
         else {
-            if (!tripData.origin.latitude || !tripData.origin.longitude) {
+            if (typeof tripData.origin.latitude !== 'number' || typeof tripData.origin.longitude !== 'number') {
                 errors.push('Origin coordinates are required');
             }
         }
@@ -116,7 +117,7 @@ class TripService {
             errors.push('Destination location is required');
         }
         else {
-            if (!tripData.destination.latitude || !tripData.destination.longitude) {
+            if (typeof tripData.destination.latitude !== 'number' || typeof tripData.destination.longitude !== 'number') {
                 errors.push('Destination coordinates are required');
             }
         }

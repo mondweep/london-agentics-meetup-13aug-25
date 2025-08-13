@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Route - Traffic Monitoring Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1d23;
+            color: #e1e5eb;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: #2d333b;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #444c56;
+        }
+
+        .header h1 {
+            color: #f0f6fc;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header .subtitle {
+            color: #8b949e;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .demo-controls {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .demo-controls h2 {
+            color: #f0f6fc;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #2ea043;
+            transform: translateY(-1px);
+        }
+
+        .btn.secondary {
+            background: #21262d;
+            border: 1px solid #30363d;
+        }
+
+        .btn.secondary:hover {
+            background: #30363d;
+        }
+
+        .btn.danger {
+            background: #da3633;
+        }
+
+        .btn.danger:hover {
+            background: #f85149;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .trip-card {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .trip-card:hover {
+            border-color: #58a6ff;
+            transform: translateY(-2px);
+        }
+
+        .trip-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .trip-name {
+            font-size: 1.25rem;
+            color: #f0f6fc;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .status-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-left: 1rem;
+        }
+
+        .status-clear { background: #238636; }
+        .status-moderate { background: #d29922; }
+        .status-heavy { background: #da3633; }
+
+        .trip-schedule {
+            color: #8b949e;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .trip-status {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #161b22;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .current-time {
+            font-weight: 600;
+        }
+
+        .delay-info {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .delay-none {
+            background: #238636;
+            color: white;
+        }
+
+        .delay-minor {
+            background: #d29922;
+            color: white;
+        }
+
+        .delay-major {
+            background: #da3633;
+            color: white;
+        }
+
+        .trip-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .notification-banner {
+            background: #0d1117;
+            border: 1px solid #58a6ff;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .notification-banner.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            font-size: 1.25rem;
+        }
+
+        .notification-text {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: #f0f6fc;
+        }
+
+        .notification-details {
+            color: #8b949e;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #58a6ff;
+        }
+
+        .stat-label {
+            color: #8b949e;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .route-comparison {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .route-comparison h3 {
+            color: #f0f6fc;
+            margin-bottom: 1rem;
+        }
+
+        .route-option {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #161b22;
+            border-radius: 6px;
+            border-left: 4px solid transparent;
+        }
+
+        .route-option.recommended {
+            border-left-color: #238636;
+        }
+
+        .route-option.avoid {
+            border-left-color: #da3633;
+        }
+
+        .route-name {
+            font-weight: 600;
+        }
+
+        .route-time {
+            color: #8b949e;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #8b949e;
+            border-top: 1px solid #30363d;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚗 Pre-Route</h1>
+        <div class="subtitle">Proactive Traffic Monitoring for Kent Commuters</div>
+    </div>
+
+    <div class="container">
+        <div class="demo-controls">
+            <h2>🎬 Demo Controls</h2>
+            <div class="button-group">
+                <button class="btn" onclick="loadAlexPersona()">👨‍💼 Load Alex (Tech Parent)</button>
+                <button class="btn" onclick="loadChloePersona()">👩‍💻 Load Chloe (Professional)</button>
+                <button class="btn secondary" onclick="simulateTrafficIncident()">🚨 Simulate Traffic</button>
+                <button class="btn secondary" onclick="clearAllAlerts()">🔄 Clear Alerts</button>
+                <button class="btn danger" onclick="resetDemo()">🧹 Reset Demo</button>
+            </div>
+        </div>
+
+        <div id="notification-banner" class="notification-banner">
+            <div class="notification-content">
+                <div class="notification-icon">⚠️</div>
+                <div class="notification-text">
+                    <div class="notification-title" id="notification-title">Traffic Alert</div>
+                    <div class="notification-details" id="notification-details">Checking traffic conditions...</div>
+                </div>
+                <button class="btn secondary" onclick="dismissNotification()">Dismiss</button>
+            </div>
+        </div>
+
+        <div id="dashboard" class="dashboard">
+            <!-- Trip cards will be dynamically generated here -->
+        </div>
+
+        <div id="route-comparison" class="route-comparison" style="display: none;">
+            <h3>🛣️ Route Options</h3>
+            <div id="route-options">
+                <!-- Route options will be displayed here -->
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="active-trips">0</div>
+                <div class="stat-label">Active Trips</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="alerts-sent">0</div>
+                <div class="stat-label">Alerts Sent</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="time-saved">0m</div>
+                <div class="stat-label">Time Saved Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="system-status">Online</div>
+                <div class="stat-label">System Status</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Pre-Route Demo - London Agentics Meetup August 13, 2025</p>
+        <p>Built with Multi-Agent Swarm Intelligence & SPARC Methodology</p>
+    </div>
+
+    <script>
+        // Demo Data
+        let currentUser = null;
+        let trips = [];
+        let alertsCount = 0;
+        let timeSaved = 0;
+
+        const kentLocations = {
+            'alex-home': { name: 'Bradbourne Vale Road, Sevenoaks', lat: 51.2766, lon: 0.1865 },
+            'chloe-home': { name: 'Rusthall Common, Tunbridge Wells', lat: 51.1327, lon: 0.2634 },
+            'leos-tuition': { name: 'Sevenoaks Tuition Centre', lat: 51.2755, lon: 0.1888 },
+            'knole-academy': { name: 'Knole Academy', lat: 51.2698, lon: 0.1923 },
+            'sevenoaks-station': { name: 'Sevenoaks Railway Station', lat: 51.2743, lon: 0.1849 },
+            'tunbridge-wells-station': { name: 'Tunbridge Wells Station', lat: 51.1314, lon: 0.2644 },
+            'london-office': { name: 'Canary Wharf, London', lat: 51.5074, lon: -0.0278 }
+        };
+
+        function loadAlexPersona() {
+            currentUser = 'Alex Thompson';
+            trips = [
+                {
+                    id: '1',
+                    name: "Leo's Tuition",
+                    origin: kentLocations['alex-home'],
+                    destination: kentLocations['leos-tuition'],
+                    schedule: 'Tuesdays, 4:30 PM - 4:45 PM',
+                    currentTime: '12 mins',
+                    status: 'clear',
+                    alertThreshold: 10
+                },
+                {
+                    id: '2',
+                    name: 'School Drop-off',
+                    origin: kentLocations['alex-home'],
+                    destination: kentLocations['knole-academy'],
+                    schedule: 'Mon-Fri, 8:15 AM - 8:30 AM',
+                    currentTime: '8 mins',
+                    status: 'clear',
+                    alertThreshold: 5
+                }
+            ];
+            updateDashboard();
+            showNotification('Demo Loaded', 'Alex Thompson persona loaded with 2 monitored trips');
+        }
+
+        function loadChloePersona() {
+            currentUser = 'Chloe Williams';
+            trips = [
+                {
+                    id: '3',
+                    name: 'London Commute',
+                    origin: kentLocations['chloe-home'],
+                    destination: kentLocations['tunbridge-wells-station'],
+                    schedule: 'Mon, Tue, Thu, 7:45 AM - 8:00 AM',
+                    currentTime: '15 mins',
+                    status: 'moderate',
+                    alertThreshold: 5
+                },
+                {
+                    id: '4',
+                    name: 'Client Meeting',
+                    origin: kentLocations['chloe-home'],
+                    destination: kentLocations['sevenoaks-station'],
+                    schedule: 'Wed, Fri, 9:30 AM - 10:00 AM',
+                    currentTime: '22 mins',
+                    status: 'clear',
+                    alertThreshold: 8
+                }
+            ];
+            updateDashboard();
+            showNotification('Demo Loaded', 'Chloe Williams persona loaded with 2 monitored trips');
+        }
+
+        function simulateTrafficIncident() {
+            if (trips.length === 0) {
+                showNotification('No Trips', 'Please load a persona first');
+                return;
+            }
+
+            // Simulate traffic on a random trip
+            const randomTrip = trips[Math.floor(Math.random() * trips.length)];
+            const incidents = [
+                { road: 'A21', reason: 'accident', delay: 25 },
+                { road: 'M25 Junction 5', reason: 'roadworks', delay: 15 },
+                { road: 'A25', reason: 'heavy congestion', delay: 18 },
+                { road: 'A264', reason: 'broken down vehicle', delay: 12 }
+            ];
+
+            const incident = incidents[Math.floor(Math.random() * incidents.length)];
+            randomTrip.status = incident.delay > 20 ? 'heavy' : 'moderate';
+            randomTrip.currentTime = `${parseInt(randomTrip.currentTime) + incident.delay} mins`;
+
+            alertsCount++;
+            timeSaved += incident.delay;
+
+            updateDashboard();
+            showTrafficAlert(randomTrip, incident);
+        }
+
+        function showTrafficAlert(trip, incident) {
+            const title = `Alert: ${trip.name}`;
+            const details = `${incident.road} is ${incident.delay} mins slower due to ${incident.reason}. Route via A264 is clear.`;
+            showNotification(title, details);
+            
+            // Show route comparison
+            showRouteComparison(trip, incident);
+        }
+
+        function showRouteComparison(trip, incident) {
+            const routeComparison = document.getElementById('route-comparison');
+            const routeOptions = document.getElementById('route-options');
+            
+            routeOptions.innerHTML = `
+                <div class="route-option avoid">
+                    <div>
+                        <div class="route-name">Via ${incident.road}</div>
+                        <div class="route-time">${trip.currentTime} (+${incident.delay} mins delay)</div>
+                    </div>
+                    <div class="delay-info delay-major">AVOID</div>
+                </div>
+                <div class="route-option recommended">
+                    <div>
+                        <div class="route-name">Via A264</div>
+                        <div class="route-time">${parseInt(trip.currentTime) - incident.delay + 2} mins (normal)</div>
+                    </div>
+                    <div class="delay-info delay-none">RECOMMENDED</div>
+                </div>
+                <div class="route-option">
+                    <div>
+                        <div class="route-name">Via Local Roads</div>
+                        <div class="route-time">${parseInt(trip.currentTime) - incident.delay + 5} mins</div>
+                    </div>
+                    <div class="delay-info delay-minor">Alternative</div>
+                </div>
+            `;
+            
+            routeComparison.style.display = 'block';
+        }
+
+        function clearAllAlerts() {
+            trips.forEach(trip => {
+                trip.status = 'clear';
+                trip.currentTime = trip.currentTime.replace(/\d+/, (match) => {
+                    return Math.max(8, parseInt(match) - 10);
+                });
+            });
+            
+            updateDashboard();
+            dismissNotification();
+            document.getElementById('route-comparison').style.display = 'none';
+            showNotification('Alerts Cleared', 'All traffic conditions have been cleared');
+        }
+
+        function resetDemo() {
+            currentUser = null;
+            trips = [];
+            alertsCount = 0;
+            timeSaved = 0;
+            updateDashboard();
+            dismissNotification();
+            document.getElementById('route-comparison').style.display = 'none';
+            showNotification('Demo Reset', 'All data has been cleared');
+        }
+
+        function updateDashboard() {
+            const dashboard = document.getElementById('dashboard');
+            
+            if (trips.length === 0) {
+                dashboard.innerHTML = `
+                    <div class="trip-card">
+                        <div class="trip-name">Welcome to Pre-Route Demo</div>
+                        <div class="trip-schedule">Load a persona to see monitored trips</div>
+                        <div style="margin-top: 1rem; color: #8b949e;">
+                            <p>👨‍💼 Alex: Tech-savvy parent from Sevenoaks with school runs</p>
+                            <p>👩‍💻 Chloe: Hybrid professional commuting to London</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                dashboard.innerHTML = trips.map(trip => `
+                    <div class="trip-card">
+                        <div class="trip-header">
+                            <div class="trip-name">${trip.name}</div>
+                            <div class="status-indicator status-${trip.status}"></div>
+                        </div>
+                        <div class="trip-schedule">${trip.schedule}</div>
+                        <div class="trip-status">
+                            <div>
+                                <div class="current-time">Currently ${trip.currentTime}</div>
+                                <div style="font-size: 0.75rem; color: #8b949e;">via ${getRandomRoute()}</div>
+                            </div>
+                            <div class="delay-info delay-${getDelayClass(trip.status)}">${getStatusText(trip.status)}</div>
+                        </div>
+                        <div class="trip-actions">
+                            <button class="btn secondary" onclick="viewTripDetails('${trip.id}')">View Details</button>
+                            <button class="btn" onclick="navigateTrip('${trip.id}')">Navigate</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Update stats
+            document.getElementById('active-trips').textContent = trips.length;
+            document.getElementById('alerts-sent').textContent = alertsCount;
+            document.getElementById('time-saved').textContent = `${timeSaved}m`;
+        }
+
+        function getRandomRoute() {
+            const routes = ['A21', 'A25', 'A264', 'M25', 'Local Roads'];
+            return routes[Math.floor(Math.random() * routes.length)];
+        }
+
+        function getDelayClass(status) {
+            switch(status) {
+                case 'clear': return 'none';
+                case 'moderate': return 'minor';
+                case 'heavy': return 'major';
+                default: return 'none';
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'clear': return 'On Time';
+                case 'moderate': return '+5-15 min';
+                case 'heavy': return '+15+ min';
+                default: return 'Unknown';
+            }
+        }
+
+        function viewTripDetails(tripId) {
+            const trip = trips.find(t => t.id === tripId);
+            if (trip) {
+                showNotification('Trip Details', `${trip.name}: ${trip.origin.name} → ${trip.destination.name}`);
+            }
+        }
+
+        function navigateTrip(tripId) {
+            const trip = trips.find(t => t.id === tripId);
+            if (trip) {
+                showNotification('Navigation Started', `Opening route to ${trip.destination.name} in your preferred navigation app`);
+            }
+        }
+
+        function showNotification(title, details) {
+            document.getElementById('notification-title').textContent = title;
+            document.getElementById('notification-details').textContent = details;
+            document.getElementById('notification-banner').classList.add('show');
+        }
+
+        function dismissNotification() {
+            document.getElementById('notification-banner').classList.remove('show');
+        }
+
+        // Initialize demo
+        updateDashboard();
+
+        // Auto-update current time every 30 seconds
+        setInterval(() => {
+            if (trips.length > 0) {
+                // Simulate slight time variations
+                trips.forEach(trip => {
+                    if (Math.random() < 0.3) { // 30% chance of small change
+                        const currentMins = parseInt(trip.currentTime);
+                        const variation = Math.floor(Math.random() * 3) - 1; // -1, 0, or +1
+                        const newTime = Math.max(5, currentMins + variation);
+                        trip.currentTime = `${newTime} mins`;
+                    }
+                });
+                updateDashboard();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

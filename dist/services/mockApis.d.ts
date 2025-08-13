@@ -15,7 +15,11 @@ export declare class MockTomTomTrafficAPI {
     getTrafficFlow(route: Route): Promise<Route>;
     getTrafficIncidents(route: Route): Promise<string[]>;
     private initializeTrafficConditions;
+    private getTimeBasedTrafficScenarios;
+    private getRandomTrafficScenarios;
     private updateTrafficConditions;
+    private addNewIncident;
+    private updateIncidentReason;
     private getRouteKey;
     injectTrafficScenario(routeName: string, severity: number, reason: string): void;
     getCurrentConditions(): Array<{
