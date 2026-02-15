@@ -263,6 +263,15 @@ exports.handler = async (event) => {
   const body = parseBody(event);
 
   // Route matching
+  if (path === 'config') {
+    return json(200, {
+      success: true,
+      data: {
+        tomtomApiKey: process.env.TOMTOM_API_KEY || '',
+      },
+    });
+  }
+
   if (path === 'health') {
     return handleHealth();
   }
