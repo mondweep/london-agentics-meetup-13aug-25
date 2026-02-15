@@ -1,7 +1,7 @@
 // Pre-Route Frontend Application
 class PreRouteApp {
     constructor() {
-        this.apiBase = 'http://localhost:3000/api';
+        this.apiBase = '/api';
         this.currentUser = null;
         this.trips = [];
         this.init();
