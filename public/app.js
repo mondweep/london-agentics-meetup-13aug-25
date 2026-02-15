@@ -14,11 +14,20 @@ class PreRouteApp {
     }
 
     async init() {
+        const mapStatus = document.getElementById('map-status');
         this.bindEvents();
+
+        mapStatus.textContent = 'Loading config...';
         await this.loadConfig();
+
         if (this.tomtomKey) {
+            mapStatus.textContent = 'Loading map...';
             this.initMap();
+        } else {
+            mapStatus.textContent = 'No API key — set TOMTOM_API_KEY in Netlify env vars and redeploy';
+            mapStatus.classList.replace('text-gray-400', 'text-yellow-400');
         }
+
         this.loadSystemStatus();
         setInterval(() => this.loadSystemStatus(), 30000);
     }
@@ -26,9 +35,15 @@ class PreRouteApp {
     async loadConfig() {
         try {
             const response = await fetch(`${this.apiBase}/config`);
+            if (!response.ok) {
+                console.warn('Config endpoint returned', response.status);
+                return;
+            }
             const result = await response.json();
             if (result.success && result.data.tomtomApiKey) {
                 this.tomtomKey = result.data.tomtomApiKey;
+            } else {
+                console.warn('Config response had no API key:', result);
             }
         } catch (error) {
             console.warn('Could not load config, map features disabled:', error);
@@ -36,6 +51,13 @@ class PreRouteApp {
     }
 
     initMap() {
+        const mapStatus = document.getElementById('map-status');
+        if (typeof tt === 'undefined') {
+            console.error('TomTom SDK not loaded');
+            mapStatus.textContent = 'SDK failed to load';
+            return;
+        }
+
         try {
             this.map = tt.map({
                 key: this.tomtomKey,
@@ -51,12 +73,19 @@ class PreRouteApp {
             this.map.addControl(new tt.NavigationControl());
 
             this.map.on('load', () => {
-                document.getElementById('map-status').textContent = 'Live traffic active';
-                document.getElementById('map-status').classList.replace('text-gray-400', 'text-green-400');
+                mapStatus.textContent = 'Live traffic active';
+                mapStatus.classList.replace('text-gray-400', 'text-green-400');
+                mapStatus.classList.replace('text-yellow-400', 'text-green-400');
+            });
+
+            this.map.on('error', (e) => {
+                console.error('Map error:', e);
+                mapStatus.textContent = 'Map error — check API key';
+                mapStatus.classList.replace('text-gray-400', 'text-red-400');
             });
         } catch (error) {
             console.error('Failed to initialize TomTom map:', error);
-            document.getElementById('map-status').textContent = 'Map unavailable';
+            mapStatus.textContent = 'Map unavailable';
         }
     }
 
